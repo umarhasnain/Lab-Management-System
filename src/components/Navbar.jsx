@@ -39,22 +39,22 @@ const Navbar = () => {
   <div className="navbar-center hidden lg:flex gap-4">
   <ul className="flex space-x-6 text-xl">
     <li>
-      <Link href="/" className="hover:text-primary hover:border-b-2 transition-colors duration-300">
+      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Home
       </Link>
     </li>
     <li>
-      <Link href="/" className="hover:text-primary hover:border-b-2 transition-colors duration-300">
+      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Tests
       </Link>
     </li>
     <li>
-      <Link href="/" className="hover:text-primary hover:border-b-2 transition-colors duration-300">
+      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Appointments
       </Link>
     </li>
     <li>
-      <Link href="/" className="hover:text-primary hover:border-b-2 transition-colors duration-300">
+      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Reports
       </Link>
     </li>
