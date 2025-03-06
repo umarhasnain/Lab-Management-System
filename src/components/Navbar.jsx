@@ -7,7 +7,9 @@ import React from 'react'
 const Navbar = () => {
   return (
     <div>
+    
       <div className="navbar bg-base-100 shadow-sm">
+
   <div className="navbar-start">
     <div className="dropdown">
       <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -44,12 +46,12 @@ const Navbar = () => {
       </Link>
     </li>
     <li>
-      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
+      <Link href="/tests" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Tests
       </Link>
     </li>
     <li>
-      <Link href="/" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
+      <Link href="/appointment" className="hover:text-[#48cae4] hover:border-b-2 transition-colors duration-300">
         Appointments
       </Link>
     </li>
@@ -72,7 +74,7 @@ const Navbar = () => {
 </div>
 
   <div className="navbar-end ">
-    <a className="btn">Register</a>
+   <Link href='/register' className="btn">Register</Link>
   </div>
 </div>
     </div>
