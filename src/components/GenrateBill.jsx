@@ -1,11 +1,11 @@
-
 'use client';
 
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
-import { Button, TextField, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Typography } from '@mui/material';
+import { Button, TextField, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Typography, Box } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
+import dayjs from "dayjs";
 
 export default function BillingInvoice() {
   const [items, setItems] = useState([{ description: '', price: '', quantity: 1 }]);
@@ -22,7 +22,7 @@ export default function BillingInvoice() {
 
   const removeItem = (index) => setItems(items.filter((_, i) => i !== index));
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const doc = new jsPDF();
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 102, 204);
@@ -32,6 +32,7 @@ export default function BillingInvoice() {
     doc.setTextColor(0, 0, 0);
     doc.text(`Customer: ${customer.name}`, 20, 40);
     doc.text(`Contact: ${customer.contact}`, 20, 50);
+        const formattedDate = dayjs().format("MM/DD/YYYY hh:mm A");
     
     let y = 70;
     doc.setFontSize(10);
@@ -52,41 +53,54 @@ export default function BillingInvoice() {
     y += 20;
     doc.text(`Total Amount: $${total.toFixed(2)}`, 20, y);
     
-    const qrData = `Lab: ${labName}\nCustomer: ${customer.name}\nTotal: $${total.toFixed(2)}`;
-    const qrCanvas = document.createElement('canvas');
-    QRCode.toCanvas(qrCanvas, qrData, { width: 50 });
-    doc.addImage(qrCanvas.toDataURL('image/png'), 'PNG', 150, 10, 40, 40);
-
+    // const qrData = `Lab: ${labName}\nCustomer: ${customer.name}\nTotal: $${total.toFixed(2)}`;
+    // try {
+    //   const qrCodeUrl = await QRCode.toDataURL(qrData, { width: 50 });
+    //   doc.addImage(qrCodeUrl, 'PNG', 150, 10, 40, 40);
+    // } catch (error) {
+    //   console.error('QR Code generation failed:', error);
+    // }
+    const qrData = `Name: ${labName}\nCustomer: ${customer.name}\nTotal: ${total.toFixed(2)}\nDate: ${formattedDate}\nAppointment No: "222"`;
+        try {
+          const qrDataURL = await QRCode.toDataURL(qrData, { errorCorrectionLevel: 'H' });
+          doc.addImage(qrDataURL, "PNG", 150, 40, 50, 50);
+        } catch (error) {
+          console.error("QR Code generation failed", error);
+        }
     doc.save('invoice.pdf');
+    setCustomer({ name: '', contact: '' });
+    setItems([{ description: '', price: '', quantity: 1 }]);
   };
 
   return (
-    <div className="p-6 w-full max-w-4xl mx-auto">
+    <Box className="p-6 w-full max-w-4xl mx-auto">
       <Typography variant="h4" className="text-center font-bold mb-6 text-blue-600">Billing & Invoices</Typography>
-      <Card>
+      <Card className="shadow-lg rounded-lg overflow-hidden">
         <CardContent>
-          <TextField label="Customer Name" fullWidth margin="dense" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} />
-          <TextField label="Contact" fullWidth margin="dense" value={customer.contact} onChange={(e) => setCustomer({ ...customer, contact: e.target.value })} />
+          <Box className="mb-4">
+            <TextField label="Customer Name" fullWidth margin="dense" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} />
+            <TextField label="Contact" fullWidth margin="dense" value={customer.contact} onChange={(e) => setCustomer({ ...customer, contact: e.target.value })} />
+          </Box>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Description</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Price ($)</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell><strong>Description</strong></TableCell>
+                <TableCell><strong>Quantity</strong></TableCell>
+                <TableCell><strong>Price ($)</strong></TableCell>
+                <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {items.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <TextField value={item.description} onChange={(e) => handleItemChange(index, 'description', e.target.value)} />
+                    <TextField fullWidth value={item.description} onChange={(e) => handleItemChange(index, 'description', e.target.value)} />
                   </TableCell>
                   <TableCell>
-                    <TextField type="number" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)} />
+                    <TextField type="number" fullWidth value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)} />
                   </TableCell>
                   <TableCell>
-                    <TextField type="number" value={item.price} onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value) || 0)} />
+                    <TextField type="number" fullWidth value={item.price} onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value) || 0)} />
                   </TableCell>
                   <TableCell>
                     <Button color="secondary" onClick={() => removeItem(index)}><Delete /></Button>
@@ -95,10 +109,12 @@ export default function BillingInvoice() {
               ))}
             </TableBody>
           </Table>
-          <Button variant="contained" color="primary" startIcon={<Add />} onClick={addItem} className="mt-4 m-2">Add Item</Button>
-          <Button variant="contained" color="success" onClick={generatePDF} className="mt-4 ml-4 mr-4 p-4">Generate Invoice</Button>
+          <Box className="flex justify-between items-center mt-6">
+            <Button variant="contained" color="primary" startIcon={<Add />} onClick={addItem}>Add Item</Button>
+            <Button variant="contained" color="success" onClick={generatePDF}>Generate Invoice</Button>
+          </Box>
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 }
