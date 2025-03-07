@@ -1,11 +1,14 @@
+
 'use client'
 import { useState, useEffect } from "react";
-import { TextField, Button, Typography, Container, MenuItem, Grid, Card, CardContent } from "@mui/material";
+import { TextField, Button, Typography, Container, MenuItem, Stack, Card, CardContent } from "@mui/material";
 import { FaCalendarCheck } from "react-icons/fa";
 import { db } from "@/app/firebase/firebaseConfig";
 import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore";
 import { jsPDF } from "jspdf";
-// import QRCode from "qrcode.react";
+import QRCode from "qrcode";
+import dayjs from "dayjs";
+
 
 const testOptions = [
   "Complete Blood Count (CBC)",
@@ -41,30 +44,42 @@ export default function Appointment() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const generatePDF = (data) => {
+  const generatePDF = async (data) => {
     const doc = new jsPDF();
     doc.setFont("helvetica", "bold");
     doc.setTextColor("#007BFF");
-    doc.text("Appointment Invoice", 80, 20);
+    doc.text("InnoLab Management System", 60, 15);
+    doc.text("Appointment Invoice", 70, 25);
     doc.setFont("helvetica", "normal");
     doc.setTextColor("black");
+    const formattedDate = dayjs(data.date).format("MM/DD/YYYY hh:mm A");
     doc.text(`Name: ${data.name}`, 20, 40);
     doc.text(`Email: ${data.email}`, 20, 50);
     doc.text(`Phone: ${data.phone}`, 20, 60);
     doc.text(`Test: ${data.test}`, 20, 70);
-    doc.text(`Date: ${data.date}`, 20, 80);
+    doc.text(`Date: ${formattedDate}`, 20, 80);
     doc.text(`Appointment No: ${data.appointmentNumber}`, 20, 90);
     
-    // const qrData = `Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nTest: ${data.test}\nDate: ${data.date}\nAppointment No: ${data.appointmentNumber}`;
-    // const qrCanvas = document.createElement("canvas");
-    // // QRCode.toCanvas(qrCanvas, qrData);
-    // const qrDataURL = qrCanvas.toDataURL("image/png");
-    // // doc.addImage(qrDataURL, "PNG", 150, 40, 50, 50);
+    const qrData = `Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nTest: ${data.test}\nDate: ${formattedDate}\nAppointment No: ${data.appointmentNumber}`;
+    try {
+      const qrDataURL = await QRCode.toDataURL(qrData, { errorCorrectionLevel: 'H' });
+      doc.addImage(qrDataURL, "PNG", 150, 40, 50, 50);
+    } catch (error) {
+      console.error("QR Code generation failed", error);
+    }
     
     doc.setFontSize(10);
     doc.text("Thank you for booking with our laboratory!", 20, 120);
     doc.text("Our team will be in touch for further details.", 20, 130);
-    // doc.addImage("/logo.png", "PNG", 20, 140, 40, 40); // Adding a company logo
+    
+    try {
+      const img = new Image();
+      img.src = "/logo.png";
+      img.onload = () => doc.addImage(img, "PNG", 20, 140, 40, 40);
+    } catch (error) {
+      console.error("Logo not found or corrupt:", error);
+    }
+    
     doc.save("appointment_invoice.pdf");
   };
 
@@ -74,7 +89,7 @@ export default function Appointment() {
     try {
       const appointmentData = { ...formData };
       await addDoc(collection(db, "appointments"), appointmentData);
-      generatePDF(appointmentData);
+      await generatePDF(appointmentData);
       alert("Appointment booked successfully!");
       setFormData({ name: "", email: "", phone: "", test: "", date: "", appointmentNumber: formData.appointmentNumber + 1 });
     } catch (error) {
@@ -84,6 +99,8 @@ export default function Appointment() {
   };
 
   return (
+   <div>
+  
     <Container maxWidth="sm" className="py-12">
       <Card className="shadow-lg p-6 rounded-xl border border-gray-200">
         <CardContent>
@@ -91,35 +108,24 @@ export default function Appointment() {
             <FaCalendarCheck className="text-3xl" /> Book an Appointment
           </Typography>
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <TextField fullWidth variant="outlined" label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth variant="outlined" label="Email" name="email" value={formData.email} onChange={handleChange} required />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth variant="outlined" label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} required />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth select variant="outlined" label="Select Test" name="test" value={formData.test} onChange={handleChange} required>
-                  {testOptions.map((test, index) => (
-                    <MenuItem key={index} value={test}>{test}</MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth type="date" variant="outlined" label="Appointment Date" name="date" value={formData.date} onChange={handleChange} InputLabelProps={{ shrink: true }} required />
-              </Grid>
-              <Grid item xs={12} className="text-center">
-                <Button type="submit" variant="contained" color="primary" className="py-2 rounded-lg text-lg shadow-md" style={{ backgroundColor: "#00b4d8" }} disabled={loading}>
-                  {loading ? "Booking..." : "Confirm Appointment"}
-                </Button>
-              </Grid>
-            </Grid>
+            <Stack spacing={3}>
+              <TextField fullWidth variant="outlined" label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
+              <TextField fullWidth variant="outlined" label="Email" name="email" value={formData.email} onChange={handleChange} required />
+              <TextField fullWidth variant="outlined" label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} required />
+              <TextField fullWidth select variant="outlined" label="Select Test" name="test" value={formData.test} onChange={handleChange} required>
+                {testOptions.map((test, index) => (
+                  <MenuItem key={index} value={test}>{test}</MenuItem>
+                ))}
+              </TextField>
+              <TextField fullWidth type="datetime-local" variant="outlined" label="Appointment Date" name="date" value={formData.date} onChange={handleChange} InputLabelProps={{ shrink: true }} required />
+              <Button type="submit" variant="contained" color="primary" className="py-2 rounded-lg text-lg shadow-md" style={{ backgroundColor: "#00b4d8" }} disabled={loading}>
+                {loading ? "Booking..." : "Confirm Appointment"}
+              </Button>
+            </Stack>
           </form>
         </CardContent>
       </Card>
     </Container>
+   </div>
   );
 }

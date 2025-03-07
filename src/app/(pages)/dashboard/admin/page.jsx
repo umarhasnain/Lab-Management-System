@@ -1,57 +1,36 @@
-
 'use client'
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import IconButton from '@mui/material/IconButton';
-import Popover from '@mui/material/Popover';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { createTheme, useColorScheme } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useDemoRouter } from '@toolpad/core/internal';
+import AdminDashboard from '@/components/Dashboard';
+import UserManagement from '@/components/UserManagement';
+import TestManagement from '@/components/AdminTests';
+import GroupIcon from '@mui/icons-material/Group';
+import ReportsAnalytics from '@/components/AdminReports';
+import BillingInvoices from '@/components/BillingInvoice';
+import InvoiceGenerator from '@/components/GenrateBill';
+import BiotechIcon from '@mui/icons-material/Biotech';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AddCardIcon from '@mui/icons-material/AddCard';
+
+// import OrdersComponent from '@/components/OrdersComponent'; // Make sure this exists
 
 const NAVIGATION = [
-  {
-    kind: 'header',
-    title: 'Main items',
-  },
-  {
-    segment: 'dashboard',
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-  },
-  {
-    segment: 'orders',
-    title: 'Orders',
-    icon: <ShoppingCartIcon />,
-  },
+  { segment: 'dashboard', title: 'Dashboard', icon: <DashboardIcon /> },
+  { segment: 'users', title: 'Users', icon: <GroupIcon /> },
+  { segment: 'tests', title: 'Tests', icon: <BiotechIcon /> },
+  { segment: 'reports', title: 'Reports', icon: <SummarizeIcon /> },
+  { segment: 'billingInvoice', title: 'Billing Invoice', icon: <AccountBalanceWalletIcon /> },
+  { segment: 'invoiceGenerator', title: 'Invoice Generator', icon: <AddCardIcon /> },
 ];
-
-const demoTheme = createTheme({
-  cssVariables: {
-    colorSchemeSelector: 'data-toolpad-color-scheme',
-  },
-  colorSchemes: { light: true, dark: true },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
-});
 
 function DemoPageContent({ pathname }) {
   return (
@@ -64,7 +43,16 @@ function DemoPageContent({ pathname }) {
         textAlign: 'center',
       }}
     >
-      <Typography>Dashboard content for {pathname}</Typography>
+      {pathname === "/dashboard" ? ( <AdminDashboard /> ) :
+       pathname === "/users" ? (<UserManagement />  ) : 
+       pathname === "/tests" ? ( <TestManagement />  ) : 
+       pathname === "/reports" ? ( <ReportsAnalytics />  ) : 
+       pathname === "/billingInvoice" ? ( <BillingInvoices />  ) : 
+       pathname === "/invoiceGenerator" ? ( <InvoiceGenerator />  ) : 
+
+       (
+        <Typography variant="h6">Page Not Found</Typography>
+      )}
     </Box>
   );
 }
@@ -73,98 +61,57 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-function CustomThemeSwitcher() {
-  const { setMode } = useColorScheme();
-
-  const handleThemeChange = React.useCallback(
-    (event) => {
-      setMode(event.target.value);
-    },
-    [setMode],
-  );
-
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = React.useState(null);
-
-  const toggleMenu = React.useCallback(
-    (event) => {
-      setMenuAnchorEl(isMenuOpen ? null : event.currentTarget);
-      setIsMenuOpen((previousIsMenuOpen) => !previousIsMenuOpen);
-    },
-    [isMenuOpen],
-  );
-
-  return (
-    <React.Fragment>
-      <Tooltip title="Settings" enterDelay={1000}>
-        <div>
-          <IconButton type="button" aria-label="settings" onClick={toggleMenu}>
-            <SettingsIcon />
-          </IconButton>
-        </div>
-      </Tooltip>
-      <Popover
-        open={isMenuOpen}
-        anchorEl={menuAnchorEl}
-        onClose={toggleMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        disableAutoFocus
-      >
-        <Box sx={{ p: 2 }}>
-          <FormControl>
-            <FormLabel id="custom-theme-switcher-label">Theme</FormLabel>
-            <RadioGroup
-              aria-labelledby="custom-theme-switcher-label"
-              defaultValue="system"
-              name="custom-theme-switcher"
-              onChange={handleThemeChange}
-            >
-              <FormControlLabel value="light" control={<Radio />} label="Light" />
-              <FormControlLabel value="system" control={<Radio />} label="System" />
-              <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-            </RadioGroup>
-          </FormControl>
-        </Box>
-      </Popover>
-    </React.Fragment>
-  );
-}
-
-function DashboardLayoutCustomThemeSwitcher(props) {
+function DashboardLayoutBranding(props) {
   const { window } = props;
-
   const router = useDemoRouter('/dashboard');
 
-  // Remove this const when copying and pasting into your project.
-  const demoWindow = window !== undefined ? window() : undefined;
+  // Fixing hydration issue by ensuring theme runs only on client
+  const [theme, setTheme] = React.useState(null);
+
+  React.useEffect(() => {
+    setTheme(
+      createTheme({
+        cssVariables: {
+          colorSchemeSelector: 'data-toolpad-color-scheme',
+        },
+        colorSchemes: { light: true, dark: true },
+        breakpoints: {
+          values: {
+            xs: 0,
+            sm: 600,
+            md: 600,
+            lg: 1200,
+            xl: 1536,
+          },
+        },
+      })
+    );
+  }, []);
+
+  if (!theme) return null; // Prevents mismatch during hydration
 
   return (
-    <AppProvider
-      navigation={NAVIGATION}
-      router={router}
-      theme={demoTheme}
-      window={demoWindow}
-    >
-      <DashboardLayout
-        slots={{
-          toolbarActions: CustomThemeSwitcher,
+    <ThemeProvider theme={theme}>
+      <AppProvider
+        navigation={NAVIGATION}
+        branding={{
+          logo: "",
+          title: 'InnoLab Management 🧪🎯',
         }}
+        router={router}
+        theme={theme}
+        window={window ? window() : undefined}
       >
-        <DemoPageContent pathname={router.pathname} />
-      </DashboardLayout>
-    </AppProvider>
+        <DashboardLayout>
+          <DemoPageContent pathname={router.pathname} />
+        </DashboardLayout>
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 
-DashboardLayoutCustomThemeSwitcher.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * Remove this when copying and pasting into your project.
-   */
+DashboardLayoutBranding.propTypes = {
   window: PropTypes.func,
 };
 
-export default DashboardLayoutCustomThemeSwitcher;
+export default DashboardLayoutBranding;
