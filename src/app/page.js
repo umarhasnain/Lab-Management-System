@@ -93,6 +93,7 @@
 
 
 
+import HomePage from '@/components/FeautureSection'
 import HeroSection from '@/components/HeroSection'
 import Navbar from '@/components/Navbar'
 import React from 'react'
@@ -102,6 +103,7 @@ const page = () => {
     <div>
 <Navbar/>
       <HeroSection/>
+      <HomePage/>
     </div>
   )
 }

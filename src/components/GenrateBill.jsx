@@ -10,7 +10,8 @@ import dayjs from "dayjs";
 export default function BillingInvoice() {
   const [items, setItems] = useState([{ description: '', price: '', quantity: 1 }]);
   const [customer, setCustomer] = useState({ name: '', contact: '' });
-  const labName = "Advanced Medical Lab";
+  const labName = "InnoLab Management System ";
+  const invoiceName = "Billing Invoices";
 
   const handleItemChange = (index, key, value) => {
     const newItems = [...items];
@@ -27,6 +28,7 @@ export default function BillingInvoice() {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 102, 204);
     doc.text(labName, 20, 20);
+    doc.text(invoiceName, 30, 30);
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
@@ -45,13 +47,13 @@ export default function BillingInvoice() {
       y += 10;
       doc.text(item.description, 20, y);
       doc.text(item.quantity.toString(), 100, y);
-      doc.text(`$${item.price}`, 140, y);
-      doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 180, y);
+      doc.text(`PKR ${item.price}`, 140, y);
+      doc.text(`PKR ${(item.price * item.quantity).toFixed(2)}`, 180, y);
     });
 
     const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     y += 20;
-    doc.text(`Total Amount: $${total.toFixed(2)}`, 20, y);
+    doc.text(`Total Amount: PKR ${total.toFixed(2)}`, 20, y);
     
     // const qrData = `Lab: ${labName}\nCustomer: ${customer.name}\nTotal: $${total.toFixed(2)}`;
     // try {
@@ -63,7 +65,7 @@ export default function BillingInvoice() {
     const qrData = `Name: ${labName}\nCustomer: ${customer.name}\nTotal: ${total.toFixed(2)}\nDate: ${formattedDate}\nAppointment No: "222"`;
         try {
           const qrDataURL = await QRCode.toDataURL(qrData, { errorCorrectionLevel: 'H' });
-          doc.addImage(qrDataURL, "PNG", 150, 40, 50, 50);
+          doc.addImage(qrDataURL, "PNG", 150, 10, 40, 40);
         } catch (error) {
           console.error("QR Code generation failed", error);
         }
@@ -86,7 +88,7 @@ export default function BillingInvoice() {
               <TableRow>
                 <TableCell><strong>Description</strong></TableCell>
                 <TableCell><strong>Quantity</strong></TableCell>
-                <TableCell><strong>Price ($)</strong></TableCell>
+                <TableCell><strong>Price (PKR)</strong></TableCell>
                 <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>

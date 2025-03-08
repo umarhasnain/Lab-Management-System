@@ -45,7 +45,7 @@ export default function BillingInvoices() {
 
   return (
     <div className="p-6 w-full max-w-6xl mx-auto">
-      <Typography variant="h4" className="text-center font-bold mb-6 text-blue-600">
+      <Typography variant="h4" className="text-center font-bold mb-6 pb-6 text-blue-600">
         Billing & Invoices
       </Typography>
 
@@ -70,6 +70,9 @@ export default function BillingInvoices() {
               <TableHead>
                 <TableRow>
                   <TableCell><strong>Customer</strong></TableCell>
+                  <TableCell><strong>Test Type</strong></TableCell>
+                  <TableCell><strong>Result</strong></TableCell>
+                  <TableCell><strong>Phone</strong></TableCell>
                   <TableCell><strong>Amount (PKR)</strong></TableCell>
                   <TableCell><strong>Status</strong></TableCell>
                   <TableCell><strong>Actions</strong></TableCell>
@@ -79,6 +82,9 @@ export default function BillingInvoices() {
                 {filteredInvoices.map(invoice => (
                   <TableRow key={invoice.id}>
                     <TableCell>{invoice.customer}</TableCell>
+                    <TableCell>{invoice.testType}</TableCell>
+                    <TableCell>{invoice.result}</TableCell>
+                    <TableCell>{invoice.phone}</TableCell>
                     <TableCell>{invoice.amount}</TableCell>
                     <TableCell>{invoice.status}</TableCell>
                     <TableCell>
@@ -102,6 +108,9 @@ export default function BillingInvoices() {
         <DialogTitle>Add New Invoice</DialogTitle>
         <DialogContent>
           <TextField label="Customer" fullWidth margin="dense" value={newInvoice.customer} onChange={(e) => setNewInvoice({ ...newInvoice, customer: e.target.value })} />
+          <TextField label="Test Type" fullWidth margin="dense" value={newInvoice.testType} onChange={(e) => setNewInvoice({ ...newInvoice, testType: e.target.value })} />
+          <TextField label="Result" fullWidth margin="dense" value={newInvoice.result} onChange={(e) => setNewInvoice({ ...newInvoice, result: e.target.value })} />
+          <TextField label="Phone" type="number" fullWidth margin="dense" value={newInvoice.phone} onChange={(e) => setNewInvoice({ ...newInvoice, phone: e.target.value })} />
           <TextField label="Amount (PKR)" type="number" fullWidth margin="dense" value={newInvoice.amount} onChange={(e) => setNewInvoice({ ...newInvoice, amount: e.target.value })} />
           <Select fullWidth margin="dense" value={newInvoice.status} onChange={(e) => setNewInvoice({ ...newInvoice, status: e.target.value })}>
             <MenuItem value="Pending">Pending</MenuItem>
@@ -119,6 +128,9 @@ export default function BillingInvoices() {
         <DialogTitle>Edit Invoice</DialogTitle>
         <DialogContent>
           <TextField label="Customer" fullWidth margin="dense" value={editingInvoice?.customer || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, customer: e.target.value })} />
+          <TextField label="Phone" type="number" fullWidth margin="dense" value={newInvoice.phone} onChange={(e) => setNewInvoice({ ...newInvoice, phone: e.target.value })} />
+          <TextField label="Test Type" fullWidth margin="dense" value={editingInvoice?.testType || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, testType: e.target.value })} />
+          <TextField label="Result" fullWidth margin="dense" value={editingInvoice?.result || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, result: e.target.value })} />
           <TextField label="Amount (PKR)" type="number" fullWidth margin="dense" value={editingInvoice?.amount || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, amount: e.target.value })} />
           <Select fullWidth margin="dense" value={editingInvoice?.status || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, status: e.target.value })}>
             <MenuItem value="Pending">Pending</MenuItem>

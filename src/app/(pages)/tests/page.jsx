@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, Typography, Button, TextField, Grid, Chip, Divider, Box } from "@mui/material";
 import { FaSearch, FaVials, FaInfoCircle } from "react-icons/fa";
+import Navbar from "@/components/Navbar";
 
 
 const testData = [
@@ -21,7 +22,7 @@ export default function Tests() {
 
   return (
    <div>
-
+<Navbar/>
      <div className="max-w-7xl mx-auto py-12 px-8 bg-gray-50 min-h-screen">
       <Typography variant="h4" className="text-[#00b4d8] font-bold mb-8 flex items-center gap-3">
         <FaVials className="text-3xl" /> Available Tests
