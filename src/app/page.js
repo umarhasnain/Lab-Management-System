@@ -10,6 +10,7 @@ const page = () => {
   return (
     <div>
 <Navbar/>
+
       <HeroSection/>
       <HomePage/>
     </div>
